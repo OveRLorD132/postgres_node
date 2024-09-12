@@ -1,7 +1,7 @@
 import Postgres from "./Postgres";
 
 const psql = new Postgres({
-  password: process.env.PG_PASS,
+  password: process.env.PG_PASS!,
   database: 'conferences'
 })
 
@@ -18,8 +18,4 @@ psql.query(`SOME ERROR QUERY`).then((data) => {
   console.log(data);
 }).catch((error) => {
   console.log(error.message);
-  psql.query(`SELECT * FROM users`).then((data) => {
-    console.log(data);
-  })
 })
-

@@ -15,8 +15,7 @@ type RawData = {
 
 type Query = {
   id: number,
-  onReady?: () => void,
-  onError?: () => void,
+  onReady?: () => void
 }
 
 export default class Postgres {
@@ -37,6 +36,8 @@ export default class Postgres {
   }
 
   public query(query: string): Promise<RawData[]> {
+    console.log(query);
+    console.log(this._workingQueries);
     return new Promise(async (resolve, reject) => {
       if(this._workingQueries.length >= 1) {
         const queryObj = this._workingQueries[this._workingQueries.length - 1]
@@ -89,22 +90,22 @@ export default class Postgres {
       }
       this._workingQueries.push(queryObj);
 
-      this._process.stdin.write(`${query};\n`);
+      this._process.stdin!.write(`${query};\n`);
 
       const procOnData = onData.bind({process: this, id: queryId});
 
-      this._process.stdout.on('data', procOnData);
+      this._process.stdout!.on('data', procOnData);
 
-      this._process.stdout.on('error', (data) => {
+      this._process.stdout!.on('error', (data) => {
         reject(new Error(`Error: ${data.toString()}`));
       })
 
       const procOnError = onError.bind({process: this, id: queryId});
-      this._process.stderr.on('data', procOnError);
+      this._process.stderr!.on('data', procOnError);
 
       const cleanup = (id: number) => {
-        this._process.stdout.off('data', procOnData);
-        this._process.stderr.off('data', procOnError);
+        this._process.stdout!.off('data', procOnData);
+        this._process.stderr!.off('data', procOnError);
 
         this._workingQueries.forEach((elem, index) => {
           if(elem.id === id) this._workingQueries.splice(index, 1);
@@ -122,6 +123,7 @@ export default class Postgres {
         if(queryId !== this.id) return;
         const err = new Error('Database Error: ' + data.toString());
         cleanup(this.id);
+        if(queryObj.onReady) queryObj.onReady();
         reject(err);
       }
 
