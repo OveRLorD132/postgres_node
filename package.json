@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "app.js",
   "scripts": {
-    "start": "npx tsc main.ts && node main.js",
+    "start": "npx tsc main.ts && node --env-file=.env main.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

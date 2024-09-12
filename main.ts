@@ -1,30 +1,25 @@
-import { spawn } from 'child_process';
-import * as fs from "node:fs/promises";
+import Postgres from "./Postgres";
 
+const psql = new Postgres({
+  password: process.env.PG_PASS,
+  database: 'conferences'
+})
 
+psql.query(`SELECT * FROM users`).then((data) => {
+  console.log(data);
+  psql.query(`SELECT * FROM calls`).then((data) => {
+    console.log(data);
+  }).catch((error) => {
+    console.log(error.message);
+  })
+})
 
-//const psql = spawn('D:\\psql\\bin\\psql.exe postgresql://postgres:Qwerty12345@localhost:5432/conferences');
-//
-// psql.stdin.write('SELECT * FROM users;\n', (error) => {
-//   if (error) return console.log(error);
-// });
-//
-// psql.stdout.on('data', data => {
-//   console.log(data.toString());
-// })
-//
-// psql.stderr.on('data', data => {
-//   console.log(data.toString());
-// })
-//
-// psql.on('close', (code) => {
-//   console.log('Closed. Code: ' + code);
-// })
-
-parseDotenv();
-
-async function parseDotenv() {
-  const content = await fs.readFile('.env', 'utf-8');
-  console.log(content);
-}
+psql.query(`SOME ERROR QUERY`).then((data) => {
+  console.log(data);
+}).catch((error) => {
+  console.log(error.message);
+  psql.query(`SELECT * FROM users`).then((data) => {
+    console.log(data);
+  })
+})
 
